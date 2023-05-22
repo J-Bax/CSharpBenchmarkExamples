@@ -137,3 +137,25 @@ Lets see what the impact is of both approaches:
 #### Conclusion: Significant impact on memory usage
 - If we allow ourselves to create 1 task and wait on in N times, the improvement is ridiculous, bringing us down to ~39MB or allocations.
 - If we do only a single delay and still create N tasks to wait on it, the improvement is still pretty good.
+
+### Observation 4: How do newer .NET runtimes do? .NET 7/.NET 8?
+
+This requires adding a new job to the benchmark config. Here are the results:
+
+|          Method |  Runtime |    Mean |   Error |  StdDev | Ratio |       Gen0 | Completed Work Items | Lock Contentions |       Gen1 |      Gen2 | Allocated | Alloc Ratio |
+|---------------- |--------- |--------:|--------:|--------:|------:|-----------:|---------------------:|-----------------:|-----------:|----------:|----------:|------------:|
+|        Baseline | .NET 6.0 | 12.12 s | 2.904 s | 0.159 s |  1.00 | 55000.0000 |         2000033.0000 |       14887.0000 | 29000.0000 | 4000.0000 | 428.41 MB |        1.00 |
+| AvoidingTaskRun | .NET 6.0 | 10.63 s | 1.343 s | 0.074 s |  0.88 | 23000.0000 |         1000000.0000 |        4770.0000 | 13000.0000 | 3000.0000 | 183.85 MB |        0.43 |
+|                 |          |         |         |         |       |            |                      |                  |            |           |           |             |
+|        Baseline | .NET 7.0 | 11.25 s | 0.367 s | 0.020 s |  1.00 | 55000.0000 |         2000002.0000 |       10811.0000 | 54000.0000 | 4000.0000 | 428.21 MB |        1.00 |
+| AvoidingTaskRun | .NET 7.0 | 10.65 s | 0.234 s | 0.013 s |  0.95 | 23000.0000 |         1000000.0000 |        4489.0000 | 22000.0000 | 3000.0000 | 183.85 MB |        0.43 |
+|                 |          |         |         |         |       |            |                      |                  |            |           |           |             |
+|        Baseline | .NET 8.0 | 11.42 s | 1.991 s | 0.109 s |  1.00 | 53000.0000 |         2000015.0000 |        9165.0000 | 52000.0000 | 4000.0000 | 405.34 MB |        1.00 |
+| AvoidingTaskRun | .NET 8.0 | 10.63 s | 0.873 s | 0.048 s |  0.93 | 23000.0000 |         1000000.0000 |        3882.0000 | 22000.0000 | 3000.0000 | 176.22 MB |        0.43 |
+
+
+The improvement is minor. The memory usage has a negligible difference from .NET 6 to .NET 7. But look at those lock contentions. It's reduced by about 30% on the baseline example. That reflects improvements in the runtime itself.
+
+Moving to .NET 8 improvements things even more. Allocations are improved a bit on both the baseline and optimized version (without Task.Run(...)). And again the number of lock contentions is reduced.
+
+#### Conclusion: Minor impact on memory usage. Runtime itself greatly improved from .NET 6 -> .NET 7.

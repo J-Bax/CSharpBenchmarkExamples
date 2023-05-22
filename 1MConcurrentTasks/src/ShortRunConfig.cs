@@ -1,5 +1,5 @@
 ﻿using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 
 namespace Benchmarks.Config
@@ -8,7 +8,9 @@ namespace Benchmarks.Config
     {
         public ShortRunConfig()
         {
-            AddJob(Job.ShortRun);
+            AddJob(Job.ShortRun.WithRuntime(CoreRuntime.Core60));
+            AddJob(Job.ShortRun.WithRuntime(CoreRuntime.Core70));
+            AddJob(Job.ShortRun.WithRuntime(CoreRuntime.Core80));
             //AddJob(Job.ShortRun.WithStrategy(RunStrategy.ColdStart));
         }
     }
