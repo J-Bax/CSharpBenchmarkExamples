@@ -133,3 +133,7 @@ Lets see what the impact is of both approaches:
 |       AvoidingTaskRun_SharingSameDelay_SameTask | 10.03 s | 0.074 s | 0.004 s |  0.83 |               1.0000 |                - |  1000.0000 |  1000.0000 | 1000.0000 |  39.63 MB |        0.09 |
 | AvoidingTaskRun_SharingSameDelay_DifferentTasks | 10.73 s | 1.583 s | 0.087 s |  0.89 |         1000001.0000 |                - | 15000.0000 |  8000.0000 | 2000.0000 | 146.45 MB |        0.34 |
 |                                        Baseline | 12.12 s | 0.284 s | 0.016 s |  1.00 |         2000034.0000 |       14365.0000 | 55000.0000 | 29000.0000 | 4000.0000 | 428.38 MB |        1.00 |
+
+#### Conclusion: Significant impact on memory usage
+- If we allow ourselves to create 1 task and wait on in N times, the improvement is ridiculous, bringing us down to ~39MB or allocations.
+- If we do only a single delay and still create N tasks to wait on it, the improvement is still pretty good.
